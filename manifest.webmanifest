@@ -6,7 +6,6 @@
   "display": "standalone",
   "background_color": "#efe2c4",
   "theme_color": "#efe2c4",
-  "description": "Persönlicher Life-RPG-Charakterbogen mit Attributen, XP, Quests und Achievements.",
   "icons": [
     {
       "src": "./icon-192.png",
