@@ -1,72 +1,275 @@
-<!doctype html><html lang="de"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#efe2c4"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png">
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#efe2c4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Charakterbogen">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <title>Charakterbogen – Life RPG</title>
 <style>
-:root{--paper:#efe2c4;--paper2:#f9f1dd;--ink:#2b241b;--muted:#766a55;--line:#8a7657;--accent:#6c5636;--danger:#7b2e2e}
-*{box-sizing:border-box}html,body{margin:0;background:#cfc4ae;color:var(--ink);font-family:Georgia,"Times New Roman",serif}
-.app{max-width:980px;margin:0 auto;min-height:100vh;background:radial-gradient(circle at 30% 0%,rgba(255,255,255,.34),transparent 28%),var(--paper);padding:calc(10px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))}
-.hero{text-align:center}.dragon{width:min(95%,900px);max-height:120px;object-fit:contain;display:block;margin:0 auto -28px}
-h1{margin:0;font-size:clamp(32px,8vw,54px);letter-spacing:.06em;border-bottom:4px double var(--ink);padding-bottom:8px}.subtitle{font-style:italic;color:var(--muted);margin-top:6px}
-.topline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.field,.section,.stat{background:rgba(255,250,240,.66);border:2px solid var(--ink);border-radius:12px}
+:root{
+ --paper:#efe2c4;--paper2:#f9f1dd;--ink:#2b241b;--muted:#766a55;--line:#8a7657;
+ --accent:#6c5636;--danger:#7b2e2e;--white:#fffdf7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#cfc4ae;color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+.app{max-width:980px;margin:0 auto;min-height:100vh;background:radial-gradient(circle at 30% 0%,rgba(255,255,255,.32),transparent 28%),var(--paper);padding:calc(8px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))}
+.hero{text-align:center}.dragon{width:min(98%,900px);max-height:145px;display:block;margin:0 auto -40px}
+h1{margin:0;font-size:clamp(32px,8vw,54px);letter-spacing:.06em;border-bottom:4px double var(--ink);padding-bottom:8px}
+.subtitle{font-style:italic;color:var(--muted);margin-top:6px}
+.topline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.field,.section,.stat{background:rgba(255,250,240,.66);border:2px solid var(--ink);border-radius:12px}
 .field{padding:8px}.field label,.mini-label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
-input,select,textarea,button{font:inherit}input[type=text],input[type=number],select,textarea{width:100%;border:1.5px solid var(--line);border-radius:7px;background:#fffdf7;color:var(--ink);padding:8px}
-.field input{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:4px 2px}.section{padding:12px;margin-top:14px}.section h2{margin:0 0 10px;font-size:20px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.stat{padding:10px;background:var(--paper2)}.stat-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.abbr{font-size:28px;font-weight:700}.stat-name{font-size:12px;color:var(--muted)}.score{width:62px;height:62px;border:2px solid var(--ink);border-radius:50%;text-align:center;font-size:24px;font-weight:700;background:#fff}
-.xp-line{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-top:8px}.next,.pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#fff;white-space:nowrap}
-.bar-shell{height:11px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:#fff;margin-top:8px}.bar{height:100%;background:var(--accent)}.small{font-size:12px;color:var(--muted);margin-top:5px}
-.xp-award{display:grid;grid-template-columns:2fr 1.3fr 110px;gap:8px}.xp-award .full{grid-column:1/-1}.multi-row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);display:none;grid-template-columns:1.3fr 110px auto;gap:8px;align-items:end}.multi-row.show{display:grid}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}button{border:1.5px solid var(--ink);border-radius:8px;background:#fffaf0;color:var(--ink);padding:9px 11px}button.primary{background:var(--accent);color:#fffaf0}button.ghost{background:transparent}button.danger{color:var(--danger);border-color:var(--danger)}
-.quest,.achievement{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;padding:8px 4px;border-bottom:1px dashed var(--line)}.quest input,.achievement input{width:22px;height:22px;accent-color:var(--accent)}
-.history{max-height:240px;overflow:auto;font-size:13px}.history div{padding:5px 0;border-bottom:1px dotted var(--line)}textarea{min-height:100px;resize:vertical}.toolrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+input,select,textarea,button{font:inherit}
+input[type=text],input[type=number],select,textarea{width:100%;border:1.5px solid var(--line);border-radius:7px;background:var(--white);color:var(--ink);padding:8px}
+.field input{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:4px 2px}
+.section{padding:12px;margin-top:14px}.section h2{margin:0 0 10px;font-size:20px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{padding:10px;background:var(--paper2)}
+.stat-head{display:grid;grid-template-columns:54px 1fr auto;gap:8px;align-items:center}
+.stat-art{width:52px;height:52px;object-fit:contain}
+.abbr{font-size:27px;font-weight:700}.stat-name{font-size:12px;color:var(--muted)}
+.score{width:58px;height:58px;border:2px solid var(--ink);border-radius:50%;text-align:center;font-size:23px;font-weight:700;background:#fff}
+.mastery{display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+.mastery-label{font-size:11px;color:var(--muted)}
+.stars{letter-spacing:2px;font-size:21px;line-height:1;white-space:nowrap}
+.star.on{color:var(--ink)}.star.off{color:transparent;-webkit-text-stroke:1.4px var(--ink)}
+.xp-line{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-top:8px}
+.next,.pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#fff;white-space:nowrap}
+.bar-shell{height:11px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:#fff;margin-top:8px}.bar{height:100%;background:var(--accent)}
+.small{font-size:12px;color:var(--muted);margin-top:5px}
+.xp-award{display:grid;grid-template-columns:2fr 1.3fr 110px;gap:8px}.xp-award .full{grid-column:1/-1}
+.multi-row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);display:none;grid-template-columns:1.3fr 110px auto;gap:8px;align-items:end}.multi-row.show{display:grid}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{border:1.5px solid var(--ink);border-radius:8px;background:#fffaf0;color:var(--ink);padding:9px 11px}
+button.primary{background:var(--accent);color:#fffaf0}.danger{color:var(--danger);border-color:var(--danger)}
+.quest{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;padding:8px 4px;border-bottom:1px dashed var(--line)}
+.quest input{width:22px;height:22px;accent-color:var(--accent)}
+.mastery-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mastery-card{border:1.5px solid var(--line);border-radius:10px;padding:10px;background:rgba(255,255,255,.3)}
+.mastery-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mastery-title img{width:38px;height:38px}.mastery-title strong{font-size:20px}
+.stage-row{display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;padding:7px 0;border-top:1px dotted var(--line)}
+.stage-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.stage-no{width:25px;height:25px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:12px;background:#fff}
+.stage-row input[type=text]{padding:6px}
+.history{max-height:240px;overflow:auto;font-size:13px}.history div{padding:5px 0;border-bottom:1px dotted var(--line)}
+textarea{min-height:100px;resize:vertical}.toolrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink);width:min(440px,calc(100% - 28px))}
-@media(max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.xp-award{grid-template-columns:1fr 1fr}.xp-award .full{grid-column:1/-1}.multi-row.show{grid-template-columns:1fr 1fr}.multi-row.show button{grid-column:1/-1}}
-@media(max-width:430px){.stats{grid-template-columns:1fr}.topline,.xp-award,.multi-row.show{grid-template-columns:1fr}.xp-award .full{grid-column:auto}}
-</style></head><body><div class="app">
+@media(max-width:760px){
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mastery-groups{grid-template-columns:1fr}
+ .xp-award{grid-template-columns:1fr 1fr}.xp-award .full{grid-column:1/-1}
+ .multi-row.show{grid-template-columns:1fr 1fr}.multi-row.show button{grid-column:1/-1}
+}
+@media(max-width:430px){
+ .stats{grid-template-columns:1fr}.topline,.xp-award,.multi-row.show{grid-template-columns:1fr}.xp-award .full{grid-column:auto}
+ .dragon{max-height:120px;margin-bottom:-30px}
+}
+</style>
+</head>
+<body><div class="app">
 <header class="hero"><img class="dragon" src="./dragon.svg" alt=""><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
-<div class="topline"><div class="field"><label>Charaktername</label><input id="charName" type="text"></div><div class="field"><label>Kampagne / Motto</label><input id="motto" type="text"></div></div>
+
+<div class="topline">
+ <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
+ <div class="field"><label>Kampagne / Motto</label><input id="motto" type="text"></div>
+</div>
+
 <section class="section"><h2>Attribute</h2><div id="stats" class="stats"></div></section>
-<section class="section"><h2>XP erhalten</h2><div class="xp-award">
-<div class="full"><span class="mini-label">Aktivität</span><input id="awardText" type="text" placeholder="z. B. 90 Minuten Wandern"></div>
-<div><span class="mini-label">Attribut</span><select id="awardStat1"></select></div>
-<div><span class="mini-label">XP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
-<div class="actions full"><button id="multiToggle" class="ghost" onclick="toggleMulti()">+ Zweites Attribut</button><button class="primary" onclick="awardXp()">Quest abschließen</button></div></div>
-<div id="multiRow" class="multi-row"><div><span class="mini-label">Zweites Attribut</span><select id="awardStat2"></select></div><div><span class="mini-label">XP</span><select id="awardXp2"><option selected>5</option><option>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div><button onclick="toggleMulti()">Entfernen</button></div>
+
+<section class="section"><h2>XP erhalten</h2>
+ <div class="xp-award">
+  <div class="full"><span class="mini-label">Aktivität</span><input id="awardText" type="text" placeholder="z. B. 90 Minuten Wandern"></div>
+  <div><span class="mini-label">Attribut</span><select id="awardStat1"></select></div>
+  <div><span class="mini-label">XP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
+  <div class="actions full"><button id="multiToggle" onclick="toggleMulti()">+ Zweites Attribut</button><button class="primary" onclick="awardXp()">Quest abschließen</button></div>
+ </div>
+ <div id="multiRow" class="multi-row">
+  <div><span class="mini-label">Zweites Attribut</span><select id="awardStat2"></select></div>
+  <div><span class="mini-label">XP</span><select id="awardXp2"><option selected>5</option><option>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
+  <button onclick="toggleMulti()">Entfernen</button>
+ </div>
 </section>
+
 <section class="section"><h2>Schnellquests</h2><div id="quests"></div></section>
-<section class="section"><h2>Achievements & Meilensteine</h2><div id="achievements"></div></section>
+
+<section class="section"><h2>Mastery & Achievements</h2>
+ <div class="small" style="margin-bottom:10px">Die fünf Bedingungen definieren wir später gemeinsam. Ein abgehakter Meilenstein füllt automatisch einen Stern am jeweiligen Attribut.</div>
+ <div id="masteryGroups" class="mastery-groups"></div>
+</section>
+
 <section class="section"><h2>Notizen / Reflexion</h2><textarea id="notes"></textarea></section>
 <section class="section"><h2>Verlauf</h2><div id="history" class="history small">Noch keine Einträge.</div></section>
-<section class="section"><details><summary>Werkzeuge & Datensicherung</summary><div class="toolrow"><button onclick="exportSave()">Spielstand exportieren</button><button onclick="document.getElementById('importFile').click()">Spielstand importieren</button><input id="importFile" type="file" hidden><button class="danger" onclick="resetAll()">Alles zurücksetzen</button></div></details></section>
+
+<section class="section"><details><summary>Werkzeuge & Datensicherung</summary><div class="toolrow">
+<button onclick="exportSave()">Spielstand exportieren</button>
+<button onclick="document.getElementById('importFile').click()">Spielstand importieren</button>
+<input id="importFile" type="file" hidden>
+<button class="danger" onclick="resetAll()">Alles zurücksetzen</button>
+</div></details></section>
 </div>
+
 <dialog id="levelDialog"><h2>Level Up!</h2><p id="levelText"></p><button class="primary" onclick="levelDialog.close()">Nice!</button></dialog>
+
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const DEFAULT={charName:"",motto:"",stats:{STR:{value:10,xp:0},DEX:{value:10,xp:0},CON:{value:11,xp:0},INT:{value:12,xp:0},WIS:{value:11,xp:0},CHA:{value:12,xp:0}},
-quests:[{text:"Krafttraining",stat:"STR",xp:10},{text:"15–30 Min. Mobility / Dehnen / Yoga",stat:"DEX",xp:10},{text:"Core / Cardio / Ausdauer",stat:"CON",xp:10},{text:"1 Stunde lesen / lernen",stat:"INT",xp:10},{text:"Meditation / Reflexion / bewusster Spaziergang",stat:"WIS",xp:10},{text:"Bewusste Quality Time",stat:"CHA",xp:10}],
-achievements:[{text:"5 saubere Klimmzüge",stat:"STR",xp:50,done:false},{text:"Zehen bei gestreckten Beinen erreichen",stat:"DEX",xp:25,done:false},{text:"90 Sekunden sauberer Plank",stat:"CON",xp:50,done:false},{text:"5 Bücher abgeschlossen",stat:"INT",xp:50,done:false},{text:"Ein altes Muster bewusst durchbrochen",stat:"WIS",xp:25,done:false},{text:"Besonderen Abend / Ausflug organisiert",stat:"CHA",xp:25,done:false}],notes:"",history:[]};
+const ICONS={STR:"str.svg",DEX:"dex.svg",CON:"con.svg",INT:"int.svg",WIS:"wis.svg",CHA:"cha.svg"};
+
+const DEFAULT={
+ charName:"",motto:"",
+ stats:{STR:{value:10,xp:0},DEX:{value:10,xp:0},CON:{value:11,xp:0},INT:{value:12,xp:0},WIS:{value:11,xp:0},CHA:{value:12,xp:0}},
+ quests:[
+  {text:"Krafttraining",stat:"STR",xp:10},
+  {text:"15–30 Min. Mobility / Dehnen / Yoga",stat:"DEX",xp:10},
+  {text:"Core / Cardio / Ausdauer",stat:"CON",xp:10},
+  {text:"1 Stunde lesen / lernen",stat:"INT",xp:10},
+  {text:"Meditation / Reflexion / bewusster Spaziergang",stat:"WIS",xp:10},
+  {text:"Bewusste Quality Time",stat:"CHA",xp:10}
+ ],
+ mastery:{},
+ notes:"",history:[]
+};
+for(const stat of Object.keys(LABELS)){
+ DEFAULT.mastery[stat]=Array.from({length:5},(_,i)=>({done:false,text:`Stufe ${i+1} – noch festzulegen`}));
+}
+
 const cloneDefault=()=>JSON.parse(JSON.stringify(DEFAULT));
-function load(){try{let r=localStorage.getItem("lifeRpgSheetV2");return r?JSON.parse(r):cloneDefault()}catch(e){return cloneDefault()}}
+function migrate(raw){
+ const base=cloneDefault();
+ if(!raw)return base;
+ const old=JSON.parse(raw);
+ Object.assign(base,old);
+ base.stats=Object.assign(base.stats,old.stats||{});
+ // migrate old achievement model into first mastery star where appropriate without losing history
+ if(!old.mastery){
+   base.mastery=cloneDefault().mastery;
+ }
+ for(const s of Object.keys(LABELS)){
+   if(!Array.isArray(base.mastery[s])) base.mastery[s]=cloneDefault().mastery[s];
+   while(base.mastery[s].length<5) base.mastery[s].push({done:false,text:`Stufe ${base.mastery[s].length+1} – noch festzulegen`});
+ }
+ return base;
+}
+function load(){
+ try{return migrate(localStorage.getItem("lifeRpgSheetV2"))}catch(e){return cloneDefault()}
+}
 let state=load();
-function save(){state.charName=charName.value;state.motto=motto.value;state.notes=notes.value;localStorage.setItem("lifeRpgSheetV2",JSON.stringify(state))}
+
+function save(){
+ state.charName=charName.value;state.motto=motto.value;state.notes=notes.value;
+ localStorage.setItem("lifeRpgSheetV2",JSON.stringify(state))
+}
 function cost(v){return COSTS[v]??null}
+function masteryCount(stat){return state.mastery[stat].filter(x=>x.done).length}
+function starsHtml(stat){
+ const n=masteryCount(stat);
+ return Array.from({length:5},(_,i)=>`<span class="star ${i<n?"on":"off"}">★</span>`).join("");
+}
 function logEntry(t){state.history.unshift(`${new Date().toLocaleString("de-DE")} – ${t}`);state.history=state.history.slice(0,200)}
-function levelCheck(stat){let s=state.stats[stat];while(s.value<18){let need=cost(s.value);if(need==null||s.xp<need)break;s.xp-=need;let old=s.value;s.value++;levelText.textContent=`${stat} steigt von ${old} auf ${s.value}.`;levelDialog.showModal()}}
+function levelCheck(stat){
+ let s=state.stats[stat];
+ while(s.value<18){
+   let need=cost(s.value);if(need==null||s.xp<need)break;
+   s.xp-=need;let old=s.value;s.value++;
+   levelText.textContent=`${stat} steigt von ${old} auf ${s.value}.`;levelDialog.showModal()
+ }
+}
 function applyXp(stat,amount){state.stats[stat].xp+=Number(amount)||0;levelCheck(stat)}
-function awardXp(){let text=awardText.value.trim()||"Freie Quest",s1=awardStat1.value,x1=Number(awardXp1.value);applyXp(s1,x1);let parts=[`+${x1} ${s1}`];if(multiRow.classList.contains("show")){let s2=awardStat2.value,x2=Number(awardXp2.value);applyXp(s2,x2);parts.push(`+${x2} ${s2}`)}logEntry(`${text}: ${parts.join(", ")}`);awardText.value="";save();render()}
-function toggleMulti(){multiRow.classList.toggle("show");multiToggle.textContent=multiRow.classList.contains("show")?"Zweites Attribut aktiv":"+ Zweites Attribut"}
-function renderStats(){stats.innerHTML="";Object.entries(state.stats).forEach(([k,s])=>{let need=cost(s.value),pct=need?Math.min(100,s.xp/need*100):100,d=document.createElement("div");d.className="stat";d.innerHTML=`<div class="stat-top"><div><div class="abbr">${k}</div><div class="stat-name">${LABELS[k]}</div></div><input class="score" type="number" min="8" max="18" value="${s.value}" data-score="${k}"></div><div class="xp-line"><div><span class="mini-label">Aktuelle XP</span><input type="number" min="0" value="${s.xp}" data-xp="${k}"></div><div class="next">${need===null?"MAX":`${s.xp} / ${need}`}</div></div><div class="bar-shell"><div class="bar" style="width:${pct}%"></div></div><div class="small">${s.value>=18?"Maximalwert erreicht":`Nächster Wert: ${s.value+1}`}</div>`;stats.appendChild(d)});document.querySelectorAll("[data-score]").forEach(i=>i.onchange=e=>{let k=e.target.dataset.score;state.stats[k].value=Math.max(8,Math.min(18,Number(e.target.value)||8));save();render()});document.querySelectorAll("[data-xp]").forEach(i=>i.onchange=e=>{let k=e.target.dataset.xp;state.stats[k].xp=Math.max(0,Number(e.target.value)||0);save();render()})}
-function renderQuests(){quests.innerHTML="";state.quests.forEach(q=>{let r=document.createElement("label");r.className="quest";r.innerHTML=`<input type="checkbox"><span>${q.text}</span><span class="pill">+${q.xp} ${q.stat}</span>`;r.querySelector("input").onchange=e=>{if(e.target.checked){applyXp(q.stat,q.xp);logEntry(`${q.text}: +${q.xp} ${q.stat}`);save();render()}};quests.appendChild(r)})}
-function renderAchievements(){achievements.innerHTML="";state.achievements.forEach(a=>{let r=document.createElement("label");r.className="achievement";r.innerHTML=`<input type="checkbox" ${a.done?"checked":""}><span>${a.text}</span><span class="pill">+${a.xp} ${a.stat}</span>`;r.querySelector("input").onchange=e=>{if(e.target.checked&&!a.done){a.done=true;applyXp(a.stat,a.xp);logEntry(`Achievement: ${a.text}: +${a.xp} ${a.stat}`);save();render()}else if(!e.target.checked&&a.done){a.done=false;save();render()}};achievements.appendChild(r)})}
+function awardXp(){
+ let text=awardText.value.trim()||"Freie Quest",s1=awardStat1.value,x1=Number(awardXp1.value);
+ applyXp(s1,x1);let parts=[`+${x1} ${s1}`];
+ if(multiRow.classList.contains("show")){
+   let s2=awardStat2.value,x2=Number(awardXp2.value);applyXp(s2,x2);parts.push(`+${x2} ${s2}`)
+ }
+ logEntry(`${text}: ${parts.join(", ")}`);awardText.value="";save();render()
+}
+function toggleMulti(){
+ multiRow.classList.toggle("show");
+ multiToggle.textContent=multiRow.classList.contains("show")?"Zweites Attribut aktiv":"+ Zweites Attribut"
+}
+function renderStats(){
+ stats.innerHTML="";
+ Object.entries(state.stats).forEach(([k,s])=>{
+   let need=cost(s.value),pct=need?Math.min(100,s.xp/need*100):100,d=document.createElement("div");
+   d.className="stat";
+   d.innerHTML=`
+   <div class="stat-head">
+     <img class="stat-art" src="./${ICONS[k]}" alt="">
+     <div><div class="abbr">${k}</div><div class="stat-name">${LABELS[k]}</div></div>
+     <input class="score" type="number" min="8" max="18" value="${s.value}" data-score="${k}">
+   </div>
+   <div class="mastery"><span class="mastery-label">Mastery</span><span class="stars">${starsHtml(k)}</span></div>
+   <div class="xp-line">
+     <div><span class="mini-label">Aktuelle XP</span><input type="number" min="0" value="${s.xp}" data-xp="${k}"></div>
+     <div class="next">${need===null?"MAX":`${s.xp} / ${need}`}</div>
+   </div>
+   <div class="bar-shell"><div class="bar" style="width:${pct}%"></div></div>
+   <div class="small">${s.value>=18?"Maximalwert erreicht":`Nächster Wert: ${s.value+1}`}</div>`;
+   stats.appendChild(d)
+ });
+ document.querySelectorAll("[data-score]").forEach(i=>i.onchange=e=>{
+   let k=e.target.dataset.score;state.stats[k].value=Math.max(8,Math.min(18,Number(e.target.value)||8));save();render()
+ });
+ document.querySelectorAll("[data-xp]").forEach(i=>i.onchange=e=>{
+   let k=e.target.dataset.xp;state.stats[k].xp=Math.max(0,Number(e.target.value)||0);save();render()
+ })
+}
+function renderQuests(){
+ quests.innerHTML="";
+ state.quests.forEach(q=>{
+   let r=document.createElement("label");r.className="quest";
+   r.innerHTML=`<input type="checkbox"><span>${q.text}</span><span class="pill">+${q.xp} ${q.stat}</span>`;
+   r.querySelector("input").onchange=e=>{
+     if(e.target.checked){applyXp(q.stat,q.xp);logEntry(`${q.text}: +${q.xp} ${q.stat}`);save();render()}
+   };
+   quests.appendChild(r)
+ })
+}
+function renderMastery(){
+ masteryGroups.innerHTML="";
+ for(const stat of Object.keys(LABELS)){
+   const card=document.createElement("div");card.className="mastery-card";
+   card.innerHTML=`<div class="mastery-title"><img src="./${ICONS[stat]}" alt=""><div><strong>${stat}</strong><div class="small">${LABELS[stat]} · <span class="stars">${starsHtml(stat)}</span></div></div></div>`;
+   state.mastery[stat].forEach((stage,idx)=>{
+     const row=document.createElement("div");row.className="stage-row";
+     row.innerHTML=`<input type="checkbox" ${stage.done?"checked":""} data-ms="${stat}" data-i="${idx}">
+                    <span class="stage-no">${idx+1}</span>
+                    <input type="text" value="${stage.text.replaceAll('"','&quot;')}" data-mtext="${stat}" data-i="${idx}">`;
+     card.appendChild(row)
+   });
+   masteryGroups.appendChild(card)
+ }
+ document.querySelectorAll("[data-ms]").forEach(i=>i.onchange=e=>{
+   const s=e.target.dataset.ms,idx=Number(e.target.dataset.i);
+   state.mastery[s][idx].done=e.target.checked;
+   logEntry(`${s} Mastery ${idx+1} ${e.target.checked?"erreicht":"zurückgesetzt"}`);
+   save();render()
+ });
+ document.querySelectorAll("[data-mtext]").forEach(i=>i.oninput=e=>{
+   const s=e.target.dataset.mtext,idx=Number(e.target.dataset.i);
+   state.mastery[s][idx].text=e.target.value;save()
+ })
+}
 function renderHistory(){history.innerHTML=state.history.length?state.history.map(x=>`<div>${x}</div>`).join(""):"Noch keine Einträge."}
-function exportSave(){save();let b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="charakterbogen-spielstand.json";a.click()}
-importFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());save();render();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}};
+function exportSave(){
+ save();let b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(b);a.download="charakterbogen-spielstand.json";a.click()
+}
+importFile.onchange=async e=>{
+ let f=e.target.files[0];if(!f)return;
+ try{state=migrate(await f.text());save();render();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
+};
 function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();save();render()}}
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
-function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderAchievements();renderHistory()}
-if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"))}render();
-</script></body></html>
+function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"))}
+render();
+</script>
+</body></html>
