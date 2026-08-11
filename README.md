@@ -1,18 +1,14 @@
-# Charakterbogen PWA v9 – Journal
+# Charakterbogen PWA v10 – Journal-Fix
 
-Das Journal protokolliert jetzt:
-- normale XP-Buchungen
-- Multiclassing-XP
-- Schnellquests
-- Level-Ups als eigene Einträge
-- Mastery-Erfolge und Zurücksetzen
-- manuelle Änderungen an Attributwerten
-- manuelle XP-Korrekturen mit Delta
+Fehlerursache:
+`history` ist im Browser bereits `window.history`.
+Dadurch wurde beim Rendern des Journals nicht das HTML-Element angesprochen.
 
-Level-Ups und Masteries werden im Journal hervorgehoben.
-
-Bestehende Daten bleiben erhalten.
-PNG-Artworks bleiben unverändert.
+Fix:
+- Journal-DOM-ID ist jetzt `journalEntries`
+- `renderHistory()` nutzt explizit `document.getElementById("journalEntries")`
+- Cache auf v10 erhöht
+- bestehende Daten bleiben erhalten
 
 Auf GitHub ersetzen:
 - index.html
