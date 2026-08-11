@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.png?v=5" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=6" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -119,7 +119,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.png?v=5",DEX:"dex.png?v=5",CON:"con.png?v=5",INT:"int.png?v=5",WIS:"wis.png?v=5",CHA:"cha.png?v=5"};
+const ICONS={STR:"str.PNG?v=6",DEX:"dex.PNG?v=6",CON:"con.PNG?v=6",INT:"int.PNG?v=6",WIS:"wis.PNG?v=6",CHA:"cha.PNG?v=6"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -269,7 +269,7 @@ function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefa
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
 function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
-if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=5",{updateViaCache:"none"}))}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=6",{updateViaCache:"none"}))}
 render();
 </script>
 </body></html>

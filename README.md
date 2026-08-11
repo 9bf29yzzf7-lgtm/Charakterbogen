@@ -1,35 +1,17 @@
-# Charakterbogen PWA v5
+# Charakterbogen PWA v6
 
-Diese ZIP enthält nur den App-Code, keine Artworks.
+Diese Version erwartet die Artwork-Dateien mit großgeschriebener Dateiendung `.PNG`.
 
-## Erwartete PNG-Dateien im selben Verzeichnis wie index.html
+Erwartete Dateien im Repository:
+- dragon.PNG
+- str.PNG
+- dex.PNG
+- con.PNG
+- int.PNG
+- wis.PNG
+- cha.PNG
 
-- dragon.png
-- str.png
-- dex.png
-- con.png
-- int.png
-- wis.png
-- cha.png
+Die Bilder selbst sind nicht in dieser ZIP enthalten.
 
-Achte exakt auf Kleinschreibung.
-
-## Was v5 behebt
-
-- alle Bildreferenzen verwenden PNG
-- `?v=5` erzwingt neue Bildabrufe statt alter Safari-/PWA-Caches
-- neuer Service-Worker-Cache `charakterbogen-v5`
-- Navigation und App-Code werden online bevorzugt aktualisiert
-- Bilder werden beim ersten Laden lokal gecacht
-- fehlende Bilder zeigen kein blaues Safari-Fragezeichen mehr
-- detaillierte Tusche-PNGs werden sauber mit `object-fit: contain` skaliert
-- vorhandene Charakterdaten bleiben im bisherigen `lifeRpgSheetV2`-Speicher erhalten
-
-## Update auf GitHub
-
-Ersetze nur:
-- index.html
-- manifest.webmanifest
-- sw.js
-
-Die sieben PNG-Artworks bleiben separat im Repository.
+Zum Update auf GitHub nur `index.html`, `manifest.webmanifest` und `sw.js` ersetzen.
+Der Cache wurde auf v6 erhöht, damit iPhone/Safari die Änderung neu lädt.
