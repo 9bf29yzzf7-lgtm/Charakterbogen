@@ -57,7 +57,7 @@ button.primary{background:var(--accent);color:#fffaf0}.danger{color:var(--danger
 .stage-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
 .stage-no{width:25px;height:25px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:12px;background:#fff}
 .stage-row input[type=text]{padding:6px}
-.history{max-height:240px;overflow:auto;font-size:13px}.history div{padding:5px 0;border-bottom:1px dotted var(--line)}
+.history{max-height:240px;overflow:auto;font-size:13px}.history div{padding:7px 0;border-bottom:1px dotted var(--line)}
 textarea{min-height:100px;resize:vertical}.toolrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink);width:min(440px,calc(100% - 28px))}
 @media(max-width:760px){
@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.PNG?v=8" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=9" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -120,7 +120,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.PNG?v=8",DEX:"dex.PNG?v=8",CON:"con.PNG?v=8",INT:"int.PNG?v=8",WIS:"wis.PNG?v=8",CHA:"cha.PNG?v=8"};
+const ICONS={STR:"str.PNG?v=9",DEX:"dex.PNG?v=9",CON:"con.PNG?v=9",INT:"int.PNG?v=9",WIS:"wis.PNG?v=9",CHA:"cha.PNG?v=9"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -303,8 +303,12 @@ function levelCheck(stat){
  let s=state.stats[stat];
  while(s.value<18){
    let need=cost(s.value);if(need==null||s.xp<need)break;
-   s.xp-=need;let old=s.value;s.value++;
-   levelText.textContent=`${stat} steigt von ${old} auf ${s.value}.`;levelDialog.showModal()
+   s.xp-=need;
+   let old=s.value;
+   s.value++;
+   logEntry(`LEVEL UP · ${stat} ${old} → ${s.value}`);
+   levelText.textContent=`${stat} steigt von ${old} auf ${s.value}.`;
+   levelDialog.showModal()
  }
 }
 function applyXp(stat,amount){state.stats[stat].xp+=Number(amount)||0;levelCheck(stat)}
@@ -341,10 +345,25 @@ function renderStats(){
    stats.appendChild(d)
  });
  document.querySelectorAll("[data-score]").forEach(i=>i.onchange=e=>{
-   let k=e.target.dataset.score;state.stats[k].value=Math.max(8,Math.min(18,Number(e.target.value)||8));save();render()
+   let k=e.target.dataset.score;
+   let old=state.stats[k].value;
+   let next=Math.max(8,Math.min(18,Number(e.target.value)||8));
+   if(next!==old){
+     state.stats[k].value=next;
+     logEntry(`Manuelle Attributänderung · ${k} ${old} → ${next}`);
+   }
+   save();render()
  });
  document.querySelectorAll("[data-xp]").forEach(i=>i.onchange=e=>{
-   let k=e.target.dataset.xp;state.stats[k].xp=Math.max(0,Number(e.target.value)||0);save();render()
+   let k=e.target.dataset.xp;
+   let old=state.stats[k].xp;
+   let next=Math.max(0,Number(e.target.value)||0);
+   if(next!==old){
+     state.stats[k].xp=next;
+     let delta=next-old;
+     logEntry(`Manuelle XP-Anpassung · ${k} ${delta>=0?"+":""}${delta} XP (${old} → ${next})`);
+   }
+   save();render()
  })
 }
 function renderQuests(){
@@ -375,7 +394,7 @@ function renderMastery(){
  document.querySelectorAll("[data-ms]").forEach(i=>i.onchange=e=>{
    const s=e.target.dataset.ms,idx=Number(e.target.dataset.i);
    state.mastery[s][idx].done=e.target.checked;
-   logEntry(`${s} Mastery ${idx+1} ${e.target.checked?"erreicht":"zurückgesetzt"}`);
+   logEntry(`MASTERY · ${s} Stufe ${idx+1} ${e.target.checked?"erreicht":"zurückgesetzt"}`);
    save();render()
  });
  document.querySelectorAll("[data-mtext]").forEach(i=>i.oninput=e=>{
@@ -383,7 +402,14 @@ function renderMastery(){
    state.mastery[s][idx].text=e.target.value;save()
  })
 }
-function renderHistory(){history.innerHTML=state.history.length?state.history.map(x=>`<div>${x}</div>`).join(""):"Noch keine Einträge."}
+function renderHistory(){
+ history.innerHTML=state.history.length
+   ? state.history.map(x=>{
+       const important=x.includes("LEVEL UP")||x.includes("MASTERY");
+       return `<div${important?' style="font-weight:700"':''}>${x}</div>`;
+     }).join("")
+   : "Noch keine Einträge.";
+}
 async function exportSave(){
  await persistNow();let b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
  a.href=URL.createObjectURL(b);a.download="charakterbogen-spielstand.json";a.click()
@@ -398,7 +424,7 @@ fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.on
 function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
 if("serviceWorker"in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=8",{updateViaCache:"none"})
+    navigator.serviceWorker.register("./sw.js?v=9",{updateViaCache:"none"})
       .then(reg=>reg.update())
       .catch(err=>console.warn("Service Worker update failed",err));
   });

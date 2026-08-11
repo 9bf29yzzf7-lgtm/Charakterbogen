@@ -1,22 +1,20 @@
-# Charakterbogen PWA v8 – Speicherfix
+# Charakterbogen PWA v9 – Journal
 
-Gefundener Fehler in v7:
-`loadState()` war implementiert, wurde beim Start aber nicht aufgerufen.
-Dadurch begann jeder App-Start wieder mit dem Default-Spielstand.
+Das Journal protokolliert jetzt:
+- normale XP-Buchungen
+- Multiclassing-XP
+- Schnellquests
+- Level-Ups als eigene Einträge
+- Mastery-Erfolge und Zurücksetzen
+- manuelle Änderungen an Attributwerten
+- manuelle XP-Korrekturen mit Delta
 
-v8:
-- lädt IndexedDB vor dem ersten Rendern
-- fällt bei Bedarf auf localStorage-Backup zurück
-- synchronisiert beide Speicher nach erfolgreichem Start
-- speichert beim Hintergrundwechsel/Schließen
-- korrigiert Import und Reset
-- enthält einen kleinen Speichertest
-- aktualisiert den Service Worker aktiv
-- Cache-Version v8
+Level-Ups und Masteries werden im Journal hervorgehoben.
+
+Bestehende Daten bleiben erhalten.
+PNG-Artworks bleiben unverändert.
 
 Auf GitHub ersetzen:
 - index.html
 - manifest.webmanifest
 - sw.js
-
-PNG-Artworks bleiben unverändert.
