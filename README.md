@@ -1,17 +1,20 @@
-# Charakterbogen PWA v6
+# Charakterbogen PWA v7
 
-Diese Version erwartet die Artwork-Dateien mit großgeschriebener Dateiendung `.PNG`.
+Neu:
+- IndexedDB ist jetzt der Hauptspeicher
+- localStorage bleibt als automatische Backup-Kopie
+- beim Start wird zuerst IndexedDB geladen, dann das Backup
+- Speichern erfolgt bei Änderungen, beim Verlassen der Seite und wenn die App in den Hintergrund geht
+- sichtbarer Speicherstatus, z. B. `Spielstand gespeichert · 11:24`
+- `Verlauf` wurde in `Journal` umbenannt
+- Level-Ups, XP-Buchungen und Mastery-Änderungen bleiben Journal-Einträge
+- bestehender localStorage-Spielstand wird automatisch übernommen
+- Cache-Version auf v7 erhöht
 
-Erwartete Dateien im Repository:
-- dragon.PNG
-- str.PNG
-- dex.PNG
-- con.PNG
-- int.PNG
-- wis.PNG
-- cha.PNG
+## Update auf GitHub
+Ersetze:
+- index.html
+- manifest.webmanifest
+- sw.js
 
-Die Bilder selbst sind nicht in dieser ZIP enthalten.
-
-Zum Update auf GitHub nur `index.html`, `manifest.webmanifest` und `sw.js` ersetzen.
-Der Cache wurde auf v6 erhöht, damit iPhone/Safari die Änderung neu lädt.
+Die PNG-Artworks bleiben unverändert im Repository.

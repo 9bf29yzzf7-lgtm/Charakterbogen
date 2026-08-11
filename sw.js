@@ -1,4 +1,4 @@
-const CACHE="charakterbogen-v6";
+const CACHE="charakterbogen-v7";
 const CORE=["./","./index.html","./manifest.webmanifest"];
 
 self.addEventListener("install",event=>{

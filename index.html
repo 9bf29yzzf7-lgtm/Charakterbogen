@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.PNG?v=6" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=7" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -104,7 +104,8 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </section>
 
 <section class="section"><h2>Notizen / Reflexion</h2><textarea id="notes"></textarea></section>
-<section class="section"><h2>Verlauf</h2><div id="history" class="history small">Noch keine Einträge.</div></section>
+<section class="section"><h2>Journal</h2><div id="history" class="history small">Noch keine Einträge.</div></section>
+<div id="saveStatus" class="small" style="text-align:center;margin:12px 0 4px">Spielstand wird geladen …</div>
 
 <section class="section"><details><summary>Werkzeuge & Datensicherung</summary><div class="toolrow">
 <button onclick="exportSave()">Spielstand exportieren</button>
@@ -119,7 +120,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.PNG?v=6",DEX:"dex.PNG?v=6",CON:"con.PNG?v=6",INT:"int.PNG?v=6",WIS:"wis.PNG?v=6",CHA:"cha.PNG?v=6"};
+const ICONS={STR:"str.PNG?v=7",DEX:"dex.PNG?v=7",CON:"con.PNG?v=7",INT:"int.PNG?v=7",WIS:"wis.PNG?v=7",CHA:"cha.PNG?v=7"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -139,32 +140,131 @@ for(const stat of Object.keys(LABELS)){
  DEFAULT.mastery[stat]=Array.from({length:5},(_,i)=>({done:false,text:`Stufe ${i+1} – noch festzulegen`}));
 }
 
+
 const cloneDefault=()=>JSON.parse(JSON.stringify(DEFAULT));
-function migrate(raw){
- const base=cloneDefault();
- if(!raw)return base;
- const old=JSON.parse(raw);
- Object.assign(base,old);
- base.stats=Object.assign(base.stats,old.stats||{});
- // migrate old achievement model into first mastery star where appropriate without losing history
- if(!old.mastery){
-   base.mastery=cloneDefault().mastery;
- }
- for(const s of Object.keys(LABELS)){
-   if(!Array.isArray(base.mastery[s])) base.mastery[s]=cloneDefault().mastery[s];
-   while(base.mastery[s].length<5) base.mastery[s].push({done:false,text:`Stufe ${base.mastery[s].length+1} – noch festzulegen`});
- }
- return base;
+
+function migrateData(data){
+  const base=cloneDefault();
+  if(!data)return base;
+  let old=data;
+  if(typeof data==="string"){
+    try{old=JSON.parse(data)}catch(e){return base}
+  }
+  Object.assign(base,old);
+  base.stats=Object.assign(base.stats,old.stats||{});
+  if(!old.mastery) base.mastery=cloneDefault().mastery;
+  for(const s of Object.keys(LABELS)){
+    if(!Array.isArray(base.mastery[s])) base.mastery[s]=cloneDefault().mastery[s];
+    while(base.mastery[s].length<5){
+      base.mastery[s].push({done:false,text:`Stufe ${base.mastery[s].length+1} – noch festzulegen`});
+    }
+  }
+  if(!Array.isArray(base.history)) base.history=[];
+  return base;
 }
-function load(){
- try{return migrate(localStorage.getItem("lifeRpgSheetV2"))}catch(e){return cloneDefault()}
+
+const DB_NAME="CharakterbogenDB";
+const DB_VERSION=1;
+const STORE="savegame";
+const SAVE_KEY="main";
+const LS_KEY="lifeRpgSheetV2";
+let db=null;
+let state=cloneDefault();
+let saveTimer=null;
+
+function setSaveStatus(text){
+  const el=document.getElementById("saveStatus");
+  if(el) el.textContent=text;
 }
-let state=load();
+
+function openDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const database=req.result;
+      if(!database.objectStoreNames.contains(STORE)){
+        database.createObjectStore(STORE);
+      }
+    };
+    req.onsuccess=()=>{db=req.result;resolve(db)};
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function idbGet(){
+  return new Promise((resolve,reject)=>{
+    if(!db){resolve(null);return}
+    const tx=db.transaction(STORE,"readonly");
+    const req=tx.objectStore(STORE).get(SAVE_KEY);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function idbPut(data){
+  return new Promise((resolve,reject)=>{
+    if(!db){reject(new Error("DB not open"));return}
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).put(data,SAVE_KEY);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+async function loadState(){
+  try{
+    await openDb();
+    const primary=await idbGet();
+    if(primary){
+      state=migrateData(primary);
+      localStorage.setItem(LS_KEY,JSON.stringify(state));
+      setSaveStatus("Spielstand geladen");
+      return;
+    }
+  }catch(e){
+    console.warn("IndexedDB load failed",e);
+  }
+
+  try{
+    const backup=localStorage.getItem(LS_KEY);
+    if(backup){
+      state=migrateData(backup);
+      try{ if(!db) await openDb(); await idbPut(state); }catch(e){}
+      setSaveStatus("Backup-Spielstand geladen");
+      return;
+    }
+  }catch(e){
+    console.warn("localStorage load failed",e);
+  }
+
+  state=cloneDefault();
+  setSaveStatus("Neuer Spielstand");
+}
+
+async function persistNow(){
+  try{
+    if(document.getElementById("charName")) state.charName=charName.value;
+    if(document.getElementById("motto")) state.motto=motto.value;
+    if(document.getElementById("notes")) state.notes=notes.value;
+    localStorage.setItem(LS_KEY,JSON.stringify(state));
+  }catch(e){console.warn("localStorage save failed",e)}
+
+  try{
+    if(!db) await openDb();
+    await idbPut(state);
+    const now=new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+    setSaveStatus(`Spielstand gespeichert · ${now}`);
+  }catch(e){
+    console.warn("IndexedDB save failed",e);
+    setSaveStatus("Backup lokal gespeichert");
+  }
+}
 
 function save(){
- state.charName=charName.value;state.motto=motto.value;state.notes=notes.value;
- localStorage.setItem("lifeRpgSheetV2",JSON.stringify(state))
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(persistNow,150);
 }
+
 function cost(v){return COSTS[v]??null}
 function masteryCount(stat){return state.mastery[stat].filter(x=>x.done).length}
 function starsHtml(stat){
@@ -257,19 +357,19 @@ function renderMastery(){
  })
 }
 function renderHistory(){history.innerHTML=state.history.length?state.history.map(x=>`<div>${x}</div>`).join(""):"Noch keine Einträge."}
-function exportSave(){
- save();let b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
+async function exportSave(){
+ await persistNow();let b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
  a.href=URL.createObjectURL(b);a.download="charakterbogen-spielstand.json";a.click()
 }
 importFile.onchange=async e=>{
  let f=e.target.files[0];if(!f)return;
- try{state=migrate(await f.text());save();render();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
+ try{state=migrateData(await f.text());await persistNow();render();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
 };
-function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();save();render()}}
+async function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();await persistNow();render()}}
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
 function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
-if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=6",{updateViaCache:"none"}))}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=7",{updateViaCache:"none"}))}
 render();
 </script>
 </body></html>
