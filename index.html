@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#efe2c4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Charakterbogen">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>Charakterbogen – Life RPG</title>
+  <style>
+    :root{
+      --paper:#efe2c4;
+      --paper2:#f8f0dc;
+      --ink:#2b241b;
+      --muted:#786b55;
+      --line:#8c795b;
+      --accent:#6b5534;
+      --soft:#e4d2aa;
+      --danger:#7d2f2f;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#cfc4ae;color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+    body{min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    .app{
+      max-width:980px;margin:0 auto;min-height:100vh;
+      background:
+        radial-gradient(circle at 30% 10%,rgba(255,255,255,.28),transparent 30%),
+        linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),
+        var(--paper);
+      padding:calc(16px + env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom));
+    }
+    h1{margin:0;text-align:center;font-size:clamp(30px,8vw,52px);letter-spacing:.06em;border-bottom:4px double var(--ink);padding-bottom:8px}
+    .subtitle{text-align:center;color:var(--muted);margin:6px 0 16px;font-style:italic}
+    .topline{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px
+    }
+    .field{
+      border:1.5px solid var(--line);border-radius:8px;padding:8px;background:rgba(255,250,240,.6)
+    }
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+    .field input{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;padding:4px 2px;color:var(--ink)}
+    .section{
+      border:2px solid var(--ink);border-radius:12px;padding:12px;margin-top:14px;background:rgba(255,250,240,.55)
+    }
+    .section h2{margin:0 0 10px;font-size:20px;letter-spacing:.03em}
+    .stats{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px
+    }
+    .stat{
+      border:2px solid var(--ink);border-radius:14px;background:var(--paper2);padding:10px
+    }
+    .stat-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .abbr{font-size:26px;font-weight:700;letter-spacing:.04em}
+    .stat-name{font-size:12px;color:var(--muted)}
+    .score{
+      width:62px;height:62px;border:2px solid var(--ink);border-radius:50%;text-align:center;
+      font-size:24px;font-weight:700;background:white
+    }
+    .xp-line{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-top:8px}
+    .xp-line label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+    .xp-line input{width:100%;padding:7px;border:1.5px solid var(--line);border-radius:7px;background:white}
+    .next{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;white-space:nowrap;background:#fffaf0}
+    .bar-shell{height:11px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:white;margin-top:8px}
+    .bar{height:100%;background:var(--accent);width:0}
+    .small{font-size:12px;color:var(--muted);margin-top:5px}
+    .quest-list,.achievement-list{display:grid;gap:6px}
+    .quest,.achievement{
+      display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;
+      padding:8px 4px;border-bottom:1px dashed var(--line)
+    }
+    .quest:last-child,.achievement:last-child{border-bottom:0}
+    .quest input[type=checkbox],.achievement input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+    .pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:white;white-space:nowrap}
+    .custom-grid{display:grid;grid-template-columns:2fr 1fr 110px auto;gap:8px;align-items:end}
+    .custom-grid label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
+    input[type=text],input[type=number],select,textarea{
+      width:100%;padding:8px;border:1.5px solid var(--line);border-radius:7px;background:#fffdf7;color:var(--ink)
+    }
+    button{
+      border:1.5px solid var(--ink);border-radius:8px;background:#fffaf0;color:var(--ink);padding:9px 11px;cursor:pointer
+    }
+    button.primary{background:var(--accent);color:#fffaf0}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .danger{border-color:var(--danger);color:var(--danger)}
+    textarea{min-height:100px;resize:vertical}
+    .history{max-height:240px;overflow:auto;font-size:13px}
+    .history div{padding:5px 0;border-bottom:1px dotted var(--line)}
+    dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink);width:min(440px,calc(100% - 28px))}
+    dialog::backdrop{background:rgba(0,0,0,.42)}
+    .dialog-actions{display:flex;justify-content:flex-end;margin-top:12px}
+    .xp-costs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+    .xp-costs div{border:1px solid var(--line);border-radius:7px;padding:6px;text-align:center;background:#fffaf0;font-size:12px}
+    @media(max-width:760px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .custom-grid{grid-template-columns:1fr 1fr}
+      .custom-grid .wide{grid-column:1/-1}
+      .xp-costs{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media(max-width:430px){
+      .stats{grid-template-columns:1fr}
+      .topline{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>CHARAKTERBOGEN</h1>
+  <div class="subtitle">Dein Abenteuer. Dein Weg.</div>
+
+  <div class="topline">
+    <div class="field">
+      <label>Charaktername</label>
+      <input id="charName" type="text" placeholder="Dein Name">
+    </div>
+    <div class="field">
+      <label>Kampagne / Motto</label>
+      <input id="motto" type="text" placeholder="z. B. Level up your life">
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>Attribute</h2>
+    <div id="stats" class="stats"></div>
+  </section>
+
+  <section class="section">
+    <h2>XP-Kosten je Steigerung</h2>
+    <div id="xpCosts" class="xp-costs"></div>
+  </section>
+
+  <section class="section">
+    <h2>Heutige Quests</h2>
+    <div id="quests" class="quest-list"></div>
+  </section>
+
+  <section class="section">
+    <h2>Freie Quest / XP buchen</h2>
+    <div class="custom-grid">
+      <div class="wide">
+        <label>Beschreibung</label>
+        <input id="customText" type="text" placeholder="z. B. 45 Minuten Yoga">
+      </div>
+      <div>
+        <label>Attribut</label>
+        <select id="customStat"></select>
+      </div>
+      <div>
+        <label>XP</label>
+        <input id="customXp" type="number" min="1" value="10">
+      </div>
+      <button class="primary" onclick="addCustomXp()">XP buchen</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Achievements & Meilensteine</h2>
+    <div id="achievements" class="achievement-list"></div>
+  </section>
+
+  <section class="section">
+    <h2>Notizen / Reflexion</h2>
+    <textarea id="notes" placeholder="Was lief gut? Was möchte ich bewusster machen?"></textarea>
+  </section>
+
+  <section class="section">
+    <h2>Verlauf</h2>
+    <div id="history" class="history small">Noch keine Einträge.</div>
+  </section>
+
+  <div class="toolbar">
+    <button onclick="exportSave()">Spielstand exportieren</button>
+    <button onclick="document.getElementById('importFile').click()">Spielstand importieren</button>
+    <input id="importFile" type="file" accept=".json,application/json" hidden>
+    <button class="danger" onclick="resetAll()">Alles zurücksetzen</button>
+  </div>
+</div>
+
+<dialog id="levelDialog">
+  <h2>Level Up!</h2>
+  <p id="levelText"></p>
+  <div class="dialog-actions"><button class="primary" onclick="levelDialog.close()">Nice!</button></div>
+</dialog>
+
+<script>
+const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
+const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
+
+const DEFAULT={
+  charName:"",
+  motto:"",
+  stats:{
+    STR:{value:10,xp:0},DEX:{value:10,xp:0},CON:{value:11,xp:0},
+    INT:{value:12,xp:0},WIS:{value:11,xp:0},CHA:{value:12,xp:0}
+  },
+  quests:[
+    {id:"q1",text:"Krafttraining",stat:"STR",xp:10},
+    {id:"q2",text:"15–30 Min. Mobility / Dehnen / Yoga",stat:"DEX",xp:10},
+    {id:"q3",text:"Core / Cardio / Ausdauer",stat:"CON",xp:10},
+    {id:"q4",text:"1 Stunde lesen / lernen",stat:"INT",xp:10},
+    {id:"q5",text:"Meditation / Reflexion / bewusster Spaziergang",stat:"WIS",xp:10},
+    {id:"q6",text:"Bewusste Quality Time",stat:"CHA",xp:10}
+  ],
+  achievements:[
+    {id:"a1",text:"5 saubere Klimmzüge",stat:"STR",xp:50,done:false},
+    {id:"a2",text:"Zehen bei gestreckten Beinen erreichen",stat:"DEX",xp:25,done:false},
+    {id:"a3",text:"90 Sekunden sauberer Plank",stat:"CON",xp:50,done:false},
+    {id:"a4",text:"5 Bücher abgeschlossen",stat:"INT",xp:50,done:false},
+    {id:"a5",text:"Ein altes Muster bewusst durchbrochen",stat:"WIS",xp:25,done:false},
+    {id:"a6",text:"Besonderen Abend / Ausflug organisiert",stat:"CHA",xp:25,done:false}
+  ],
+  notes:"",
+  history:[]
+};
+
+function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT))}
+function load(){
+  try{
+    const raw=localStorage.getItem("lifeRpgSheetV2");
+    return raw?JSON.parse(raw):cloneDefault();
+  }catch(e){return cloneDefault()}
+}
+let state=load();
+
+function save(){
+  state.charName=document.getElementById("charName")?.value??state.charName;
+  state.motto=document.getElementById("motto")?.value??state.motto;
+  state.notes=document.getElementById("notes")?.value??state.notes;
+  localStorage.setItem("lifeRpgSheetV2",JSON.stringify(state));
+}
+function cost(v){return COSTS[v]??null}
+function logEntry(text){
+  const stamp=new Date().toLocaleString("de-DE");
+  state.history.unshift(`${stamp} – ${text}`);
+  state.history=state.history.slice(0,200);
+}
+function applyXp(stat,amount,source){
+  const s=state.stats[stat];
+  s.xp+=Number(amount)||0;
+  while(s.value<18){
+    const need=cost(s.value);
+    if(need==null||s.xp<need)break;
+    s.xp-=need;
+    const old=s.value;
+    s.value++;
+    document.getElementById("levelText").textContent=`${stat} steigt von ${old} auf ${s.value}.`;
+    document.getElementById("levelDialog").showModal();
+  }
+  logEntry(`${source}: +${amount} ${stat}-XP`);
+  save();render();
+}
+
+function renderStats(){
+  const wrap=document.getElementById("stats");wrap.innerHTML="";
+  Object.entries(state.stats).forEach(([key,s])=>{
+    const need=cost(s.value);
+    const pct=need?Math.min(100,s.xp/need*100):100;
+    const el=document.createElement("div");
+    el.className="stat";
+    el.innerHTML=`
+      <div class="stat-top">
+        <div>
+          <div class="abbr">${key}</div>
+          <div class="stat-name">${LABELS[key]}</div>
+        </div>
+        <input class="score" type="number" min="8" max="18" value="${s.value}" data-score="${key}">
+      </div>
+      <div class="xp-line">
+        <div>
+          <label>Aktuelle XP</label>
+          <input type="number" min="0" value="${s.xp}" data-xp="${key}">
+        </div>
+        <div class="next">${need===null?"MAX":`${s.xp} / ${need} XP`}</div>
+      </div>
+      <div class="bar-shell"><div class="bar" style="width:${pct}%"></div></div>
+      <div class="small">${s.value>=18?"Maximalwert erreicht":`Nächster Wert: ${s.value+1}`}</div>
+    `;
+    wrap.appendChild(el);
+  });
+  document.querySelectorAll("[data-score]").forEach(i=>i.addEventListener("change",e=>{
+    const k=e.target.dataset.score;
+    state.stats[k].value=Math.max(8,Math.min(18,Number(e.target.value)||8));
+    save();render();
+  }));
+  document.querySelectorAll("[data-xp]").forEach(i=>i.addEventListener("change",e=>{
+    const k=e.target.dataset.xp;
+    state.stats[k].xp=Math.max(0,Number(e.target.value)||0);
+    save();render();
+  }));
+}
+
+function renderCosts(){
+  const wrap=document.getElementById("xpCosts");
+  wrap.innerHTML=Object.entries(COSTS).map(([v,c])=>`<div><b>${v} → ${Number(v)+1}</b><br>${c} XP</div>`).join("");
+}
+
+function renderQuests(){
+  const wrap=document.getElementById("quests");wrap.innerHTML="";
+  state.quests.forEach(q=>{
+    const row=document.createElement("label");row.className="quest";
+    row.innerHTML=`<input type="checkbox"><span>${q.text}</span><span class="pill">+${q.xp} ${q.stat}</span>`;
+    row.querySelector("input").addEventListener("change",e=>{
+      if(e.target.checked){
+        applyXp(q.stat,q.xp,q.text);
+        setTimeout(()=>{e.target.checked=false},160);
+      }
+    });
+    wrap.appendChild(row);
+  });
+}
+
+function renderAchievements(){
+  const wrap=document.getElementById("achievements");wrap.innerHTML="";
+  state.achievements.forEach(a=>{
+    const row=document.createElement("label");row.className="achievement";
+    row.innerHTML=`<input type="checkbox" ${a.done?"checked":""}><span>${a.text}</span><span class="pill">+${a.xp} ${a.stat}</span>`;
+    row.querySelector("input").addEventListener("change",e=>{
+      if(e.target.checked&&!a.done){a.done=true;applyXp(a.stat,a.xp,`Achievement: ${a.text}`)}
+      else if(!e.target.checked&&a.done){a.done=false;save();render()}
+    });
+    wrap.appendChild(row);
+  });
+}
+
+function renderHistory(){
+  const h=document.getElementById("history");
+  h.innerHTML=state.history.length?state.history.map(x=>`<div>${x}</div>`).join(""):"Noch keine Einträge.";
+}
+
+function addCustomXp(){
+  const text=document.getElementById("customText").value.trim()||"Freie Quest";
+  const stat=document.getElementById("customStat").value;
+  const xp=Math.max(1,Number(document.getElementById("customXp").value)||1);
+  applyXp(stat,xp,text);
+  document.getElementById("customText").value="";
+}
+
+function exportSave(){
+  save();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="charakterbogen-spielstand.json";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+document.getElementById("importFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    state=d;save();render();alert("Spielstand importiert.");
+  }catch(err){alert("Die Datei konnte nicht importiert werden.");}
+  e.target.value="";
+});
+function resetAll(){
+  if(confirm("Wirklich alle Werte, XP, Achievements, Notizen und Verlauf löschen?")){
+    state=cloneDefault();save();render();
+  }
+}
+function render(){
+  document.getElementById("charName").value=state.charName||"";
+  document.getElementById("motto").value=state.motto||"";
+  document.getElementById("notes").value=state.notes||"";
+  renderStats();renderCosts();renderQuests();renderAchievements();renderHistory();
+}
+document.getElementById("charName").addEventListener("input",save);
+document.getElementById("motto").addEventListener("input",save);
+document.getElementById("notes").addEventListener("input",save);
+document.getElementById("customStat").innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("");
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+}
+render();
+</script>
+</body>
+</html>
