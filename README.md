@@ -1,20 +1,22 @@
-# Charakterbogen PWA v7
+# Charakterbogen PWA v8 – Speicherfix
 
-Neu:
-- IndexedDB ist jetzt der Hauptspeicher
-- localStorage bleibt als automatische Backup-Kopie
-- beim Start wird zuerst IndexedDB geladen, dann das Backup
-- Speichern erfolgt bei Änderungen, beim Verlassen der Seite und wenn die App in den Hintergrund geht
-- sichtbarer Speicherstatus, z. B. `Spielstand gespeichert · 11:24`
-- `Verlauf` wurde in `Journal` umbenannt
-- Level-Ups, XP-Buchungen und Mastery-Änderungen bleiben Journal-Einträge
-- bestehender localStorage-Spielstand wird automatisch übernommen
-- Cache-Version auf v7 erhöht
+Gefundener Fehler in v7:
+`loadState()` war implementiert, wurde beim Start aber nicht aufgerufen.
+Dadurch begann jeder App-Start wieder mit dem Default-Spielstand.
 
-## Update auf GitHub
-Ersetze:
+v8:
+- lädt IndexedDB vor dem ersten Rendern
+- fällt bei Bedarf auf localStorage-Backup zurück
+- synchronisiert beide Speicher nach erfolgreichem Start
+- speichert beim Hintergrundwechsel/Schließen
+- korrigiert Import und Reset
+- enthält einen kleinen Speichertest
+- aktualisiert den Service Worker aktiv
+- Cache-Version v8
+
+Auf GitHub ersetzen:
 - index.html
 - manifest.webmanifest
 - sw.js
 
-Die PNG-Artworks bleiben unverändert im Repository.
+PNG-Artworks bleiben unverändert.

@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.PNG?v=7" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=8" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -120,7 +120,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.PNG?v=7",DEX:"dex.PNG?v=7",CON:"con.PNG?v=7",INT:"int.PNG?v=7",WIS:"wis.PNG?v=7",CHA:"cha.PNG?v=7"};
+const ICONS={STR:"str.PNG?v=8",DEX:"dex.PNG?v=8",CON:"con.PNG?v=8",INT:"int.PNG?v=8",WIS:"wis.PNG?v=8",CHA:"cha.PNG?v=8"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -175,6 +175,33 @@ let saveTimer=null;
 function setSaveStatus(text){
   const el=document.getElementById("saveStatus");
   if(el) el.textContent=text;
+}
+
+async function storageSelfTest(){
+  const probe={ok:true,t:Date.now()};
+  try{
+    localStorage.setItem("charakterbogen_probe",JSON.stringify(probe));
+    const ls=JSON.parse(localStorage.getItem("charakterbogen_probe")||"null");
+    localStorage.removeItem("charakterbogen_probe");
+    if(!ls || ls.t!==probe.t) throw new Error("localStorage probe failed");
+  }catch(e){
+    setSaveStatus("Warnung: lokaler Backup-Speicher blockiert");
+    return false;
+  }
+  try{
+    if(!db) await openDb();
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).put(probe,"__probe__");
+    await new Promise((resolve,reject)=>{
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    const tx2=db.transaction(STORE,"readwrite");
+    tx2.objectStore(STORE).delete("__probe__");
+  }catch(e){
+    setSaveStatus("Warnung: IndexedDB nicht verfügbar – Backup aktiv");
+    return false;
+  }
+  return true;
 }
 
 function openDb(){
@@ -363,13 +390,34 @@ async function exportSave(){
 }
 importFile.onchange=async e=>{
  let f=e.target.files[0];if(!f)return;
- try{state=migrateData(await f.text());await persistNow();render();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
+ try{state=migrateData(await f.text());render();await persistNow();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
 };
-async function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();await persistNow();render()}}
+async function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();render();await persistNow()}}
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
 function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
-if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=7",{updateViaCache:"none"}))}
-render();
+if("serviceWorker"in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js?v=8",{updateViaCache:"none"})
+      .then(reg=>reg.update())
+      .catch(err=>console.warn("Service Worker update failed",err));
+  });
+}
+
+window.addEventListener("pagehide",()=>{persistNow()});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden") persistNow();
+});
+
+async function initApp(){
+  setSaveStatus("Spielstand wird geladen …");
+  await loadState();
+  render();
+  // Re-save a successfully loaded state into both stores so they remain synchronized.
+  await persistNow();
+  await storageSelfTest();
+}
+
+initApp();
 </script>
 </body></html>
