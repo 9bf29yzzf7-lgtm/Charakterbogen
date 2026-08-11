@@ -31,7 +31,7 @@ input[type=text],input[type=number],select,textarea{width:100%;border:1.5px soli
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .stat{padding:10px;background:var(--paper2)}
 .stat-head{display:grid;grid-template-columns:54px 1fr auto;gap:8px;align-items:center}
-.stat-art{width:56px;height:56px;object-fit:contain;object-position:center;display:block}
+.stat-art{width:64px;height:64px;object-fit:contain;object-position:center;display:block;filter:grayscale(1) contrast(1.05)}
 .abbr{font-size:27px;font-weight:700}.stat-name{font-size:12px;color:var(--muted)}
 .score{width:58px;height:58px;border:2px solid var(--ink);border-radius:50%;text-align:center;font-size:23px;font-weight:700;background:#fff}
 .mastery{display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
@@ -52,7 +52,7 @@ button.primary{background:var(--accent);color:#fffaf0}.danger{color:var(--danger
 .mastery-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .mastery-card{border:1.5px solid var(--line);border-radius:10px;padding:10px;background:rgba(255,255,255,.3)}
 .mastery-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.mastery-title img{width:38px;height:38px}.mastery-title strong{font-size:20px}
+.mastery-title img{width:48px;height:48px;object-fit:contain;filter:grayscale(1) contrast(1.05)}.mastery-title strong{font-size:20px}
 .stage-row{display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;padding:7px 0;border-top:1px dotted var(--line)}
 .stage-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
 .stage-no{width:25px;height:25px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:12px;background:#fff}
@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.png" alt=""><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.png?v=5" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -119,7 +119,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.png",DEX:"dex.png",CON:"con.png",INT:"int.png",WIS:"wis.png",CHA:"cha.png"};
+const ICONS={STR:"str.png?v=5",DEX:"dex.png?v=5",CON:"con.png?v=5",INT:"int.png?v=5",WIS:"wis.png?v=5",CHA:"cha.png?v=5"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -200,7 +200,7 @@ function renderStats(){
    d.className="stat";
    d.innerHTML=`
    <div class="stat-head">
-     <img class="stat-art" src="./${ICONS[k]}" alt="">
+     <img class="stat-art" src="./${ICONS[k]}" alt="" onerror="this.style.visibility='hidden'">
      <div><div class="abbr">${k}</div><div class="stat-name">${LABELS[k]}</div></div>
      <input class="score" type="number" min="8" max="18" value="${s.value}" data-score="${k}">
    </div>
@@ -235,7 +235,7 @@ function renderMastery(){
  masteryGroups.innerHTML="";
  for(const stat of Object.keys(LABELS)){
    const card=document.createElement("div");card.className="mastery-card";
-   card.innerHTML=`<div class="mastery-title"><img src="./${ICONS[stat]}" alt=""><div><strong>${stat}</strong><div class="small">${LABELS[stat]} · <span class="stars">${starsHtml(stat)}</span></div></div></div>`;
+   card.innerHTML=`<div class="mastery-title"><img src="./${ICONS[stat]}" alt="" onerror="this.style.visibility='hidden'"><div><strong>${stat}</strong><div class="small">${LABELS[stat]} · <span class="stars">${starsHtml(stat)}</span></div></div></div>`;
    state.mastery[stat].forEach((stage,idx)=>{
      const row=document.createElement("div");row.className="stage-row";
      row.innerHTML=`<input type="checkbox" ${stage.done?"checked":""} data-ms="${stat}" data-i="${idx}">
@@ -269,7 +269,7 @@ function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefa
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
 function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
-if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"))}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=5",{updateViaCache:"none"}))}
 render();
 </script>
 </body></html>

@@ -1,23 +1,35 @@
-# Charakterbogen PWA v4
+# Charakterbogen PWA v5
 
-Diese Version verwendet PNG-Artworks statt SVGs.
+Diese ZIP enthält nur den App-Code, keine Artworks.
 
-Lege diese Dateien direkt neben `index.html` ab:
+## Erwartete PNG-Dateien im selben Verzeichnis wie index.html
 
-- `dragon.png`
-- `str.png`
-- `dex.png`
-- `con.png`
-- `int.png`
-- `wis.png`
-- `cha.png`
+- dragon.png
+- str.png
+- dex.png
+- con.png
+- int.png
+- wis.png
+- cha.png
 
-Die Bilddateien sind absichtlich **nicht** in dieser ZIP enthalten.
+Achte exakt auf Kleinschreibung.
 
-Neu gegenüber v3:
-- alle Artwork-Referenzen auf `.png` umgestellt
-- PNGs werden sauber per `object-fit: contain` skaliert
-- Offline-Cache lädt nur die Kern-App vorab
-- Artworks werden beim ersten Abruf automatisch gecacht
+## Was v5 behebt
 
-Hinweis: Das CON-Artwork muss noch als `con.png` vorhanden sein, bevor es angezeigt werden kann.
+- alle Bildreferenzen verwenden PNG
+- `?v=5` erzwingt neue Bildabrufe statt alter Safari-/PWA-Caches
+- neuer Service-Worker-Cache `charakterbogen-v5`
+- Navigation und App-Code werden online bevorzugt aktualisiert
+- Bilder werden beim ersten Laden lokal gecacht
+- fehlende Bilder zeigen kein blaues Safari-Fragezeichen mehr
+- detaillierte Tusche-PNGs werden sauber mit `object-fit: contain` skaliert
+- vorhandene Charakterdaten bleiben im bisherigen `lifeRpgSheetV2`-Speicher erhalten
+
+## Update auf GitHub
+
+Ersetze nur:
+- index.html
+- manifest.webmanifest
+- sw.js
+
+Die sieben PNG-Artworks bleiben separat im Repository.
