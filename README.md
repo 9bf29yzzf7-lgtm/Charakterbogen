@@ -1,16 +1,15 @@
-# Charakterbogen PWA v10 – Journal-Fix
+# Charakterbogen PWA v11
 
-Fehlerursache:
-`history` ist im Browser bereits `window.history`.
-Dadurch wurde beim Rendern des Journals nicht das HTML-Element angesprochen.
+Änderungen:
+- XP heißt in der Oberfläche jetzt EP
+- Mastery heißt jetzt Meisterschaft
+- Mastery & Achievements heißt jetzt Meisterschaftsgrade
+- Schnellquests wurden vollständig aus der Oberfläche entfernt
+- die Anmerkung unter den Meisterschaftsgraden wurde entfernt
+- Journal-Bezeichnungen wurden auf EP/Meisterschaft angepasst
+- Cache-Busting auf v11 erhöht
 
-Fix:
-- Journal-DOM-ID ist jetzt `journalEntries`
-- `renderHistory()` nutzt explizit `document.getElementById("journalEntries")`
-- Cache auf v10 erhöht
-- bestehende Daten bleiben erhalten
+Die internen Speicherfelder `xp` und `mastery` bleiben absichtlich unverändert,
+damit bestehende lokale Spielstände und JSON-Backups kompatibel bleiben.
 
-Auf GitHub ersetzen:
-- index.html
-- manifest.webmanifest
-- sw.js
+PNG-Artworks sind nicht Bestandteil dieser ZIP und bleiben unverändert im Repository.

@@ -73,7 +73,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.PNG?v=10" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=11" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
 <div class="topline">
  <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
@@ -82,24 +82,23 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 
 <section class="section"><h2>Attribute</h2><div id="stats" class="stats"></div></section>
 
-<section class="section"><h2>XP erhalten</h2>
+<section class="section"><h2>EP erhalten</h2>
  <div class="xp-award">
   <div class="full"><span class="mini-label">Aktivität</span><input id="awardText" type="text" placeholder="z. B. 90 Minuten Wandern"></div>
   <div><span class="mini-label">Attribut</span><select id="awardStat1"></select></div>
-  <div><span class="mini-label">XP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
+  <div><span class="mini-label">EP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
   <div class="actions full"><button id="multiToggle" onclick="toggleMulti()">+ Zweites Attribut</button><button class="primary" onclick="awardXp()">Quest abschließen</button></div>
  </div>
  <div id="multiRow" class="multi-row">
   <div><span class="mini-label">Zweites Attribut</span><select id="awardStat2"></select></div>
-  <div><span class="mini-label">XP</span><select id="awardXp2"><option selected>5</option><option>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
+  <div><span class="mini-label">EP</span><select id="awardXp2"><option selected>5</option><option>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
   <button onclick="toggleMulti()">Entfernen</button>
  </div>
 </section>
 
-<section class="section"><h2>Schnellquests</h2><div id="quests"></div></section>
 
-<section class="section"><h2>Mastery & Achievements</h2>
- <div class="small" style="margin-bottom:10px">Die fünf Bedingungen definieren wir später gemeinsam. Ein abgehakter Meilenstein füllt automatisch einen Stern am jeweiligen Attribut.</div>
+
+<section class="section"><h2>Meisterschaftsgrade</h2>
  <div id="masteryGroups" class="mastery-groups"></div>
 </section>
 
@@ -120,7 +119,7 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.PNG?v=10",DEX:"dex.PNG?v=10",CON:"con.PNG?v=10",INT:"int.PNG?v=10",WIS:"wis.PNG?v=10",CHA:"cha.PNG?v=10"};
+const ICONS={STR:"str.PNG?v=11",DEX:"dex.PNG?v=11",CON:"con.PNG?v=11",INT:"int.PNG?v=11",WIS:"wis.PNG?v=11",CHA:"cha.PNG?v=11"};
 
 const DEFAULT={
  charName:"",motto:"",
@@ -335,9 +334,9 @@ function renderStats(){
      <div><div class="abbr">${k}</div><div class="stat-name">${LABELS[k]}</div></div>
      <input class="score" type="number" min="8" max="18" value="${s.value}" data-score="${k}">
    </div>
-   <div class="mastery"><span class="mastery-label">Mastery</span><span class="stars">${starsHtml(k)}</span></div>
+   <div class="mastery"><span class="mastery-label">Meisterschaft</span><span class="stars">${starsHtml(k)}</span></div>
    <div class="xp-line">
-     <div><span class="mini-label">Aktuelle XP</span><input type="number" min="0" value="${s.xp}" data-xp="${k}"></div>
+     <div><span class="mini-label">Aktuelle EP</span><input type="number" min="0" value="${s.xp}" data-xp="${k}"></div>
      <div class="next">${need===null?"MAX":`${s.xp} / ${need}`}</div>
    </div>
    <div class="bar-shell"><div class="bar" style="width:${pct}%"></div></div>
@@ -361,7 +360,7 @@ function renderStats(){
    if(next!==old){
      state.stats[k].xp=next;
      let delta=next-old;
-     logEntry(`Manuelle XP-Anpassung · ${k} ${delta>=0?"+":""}${delta} XP (${old} → ${next})`);
+     logEntry(`Manuelle EP-Anpassung · ${k} ${delta>=0?"+":""}${delta} EP (${old} → ${next})`);
    }
    save();render()
  })
@@ -394,7 +393,7 @@ function renderMastery(){
  document.querySelectorAll("[data-ms]").forEach(i=>i.onchange=e=>{
    const s=e.target.dataset.ms,idx=Number(e.target.dataset.i);
    state.mastery[s][idx].done=e.target.checked;
-   logEntry(`MASTERY · ${s} Stufe ${idx+1} ${e.target.checked?"erreicht":"zurückgesetzt"}`);
+   logEntry(`MEISTERSCHAFT · ${s} Stufe ${idx+1} ${e.target.checked?"erreicht":"zurückgesetzt"}`);
    save();render()
  });
  document.querySelectorAll("[data-mtext]").forEach(i=>i.oninput=e=>{
@@ -423,10 +422,10 @@ importFile.onchange=async e=>{
 async function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();render();await persistNow()}}
 function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
 fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
-function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderQuests();renderMastery();renderHistory()}
+function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderMastery();renderHistory()}
 if("serviceWorker"in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=10",{updateViaCache:"none"})
+    navigator.serviceWorker.register("./sw.js?v=11",{updateViaCache:"none"})
       .then(reg=>reg.update())
       .catch(err=>console.warn("Service Worker update failed",err));
   });
