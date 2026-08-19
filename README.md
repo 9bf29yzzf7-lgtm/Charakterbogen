@@ -1,15 +1,20 @@
-# Charakterbogen PWA v11
+# Charakterbogen PWA v12 – Beziehung
 
-Änderungen:
-- XP heißt in der Oberfläche jetzt EP
-- Mastery heißt jetzt Meisterschaft
-- Mastery & Achievements heißt jetzt Meisterschaftsgrade
-- Schnellquests wurden vollständig aus der Oberfläche entfernt
-- die Anmerkung unter den Meisterschaftsgraden wurde entfernt
-- Journal-Bezeichnungen wurden auf EP/Meisterschaft angepasst
-- Cache-Busting auf v11 erhöht
+Neu:
+- kompakter Kopfbereich
+- Beziehungs-Artwork rechts neben Charaktername/Kampagne
+- erwartete Datei: `rel.PNG`
+- Beziehung ist als Sonderoption im Attribut-Pulldown verfügbar
+- Beziehung vergibt keine EP
+- Beziehungsaktivität erzeugt einen Journal-Eintrag
+- Artwork wird für den aktuellen Kalendertag aktiviert
+- am nächsten Tag ist es automatisch wieder inaktiv
+- bestehende Spielstände bleiben kompatibel
 
-Die internen Speicherfelder `xp` und `mastery` bleiben absichtlich unverändert,
-damit bestehende lokale Spielstände und JSON-Backups kompatibel bleiben.
+Auf GitHub ersetzen:
+- index.html
+- manifest.webmanifest
+- sw.js
 
-PNG-Artworks sind nicht Bestandteil dieser ZIP und bleiben unverändert im Repository.
+Zusätzlich separat hochladen:
+- rel.PNG

@@ -70,14 +70,32 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
  .stats{grid-template-columns:1fr}.topline,.xp-award,.multi-row.show{grid-template-columns:1fr}.xp-award .full{grid-column:auto}
  .dragon{max-height:120px;margin-bottom:-30px}
 }
+
+.identity-wrap{display:grid;grid-template-columns:1fr 96px;gap:10px;align-items:stretch;margin:14px 0}
+.identity-fields{display:grid;grid-template-columns:1fr;gap:8px}
+.compact-field{min-height:0;padding:7px 9px}
+.compact-field input{font-size:18px;padding:3px 2px}
+.relationship-slot{border:2px solid var(--ink);border-radius:12px;background:rgba(255,250,240,.66);display:grid;place-items:center;position:relative;min-height:92px;overflow:hidden}
+.relationship-slot img{width:64px;height:64px;object-fit:contain;display:block;opacity:.12;transition:opacity .2s ease;filter:grayscale(1) contrast(1.05)}
+.relationship-slot.active img{opacity:1}
+.relationship-inactive{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted);letter-spacing:.03em}
+.relationship-slot.active .relationship-inactive{display:none}
+@media(max-width:430px){.identity-wrap{grid-template-columns:1fr 82px}.relationship-slot{min-height:82px}.relationship-slot img{width:58px;height:58px}}
+
 </style>
 </head>
 <body><div class="app">
-<header class="hero"><img class="dragon" src="./dragon.PNG?v=11" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
+<header class="hero"><img class="dragon" src="./dragon.PNG?v=12" alt="" onerror="this.style.display='none'"><h1>CHARAKTERBOGEN</h1><div class="subtitle">Dein Abenteuer. Dein Weg.</div></header>
 
-<div class="topline">
- <div class="field"><label>Charaktername</label><input id="charName" type="text"></div>
- <div class="field"><label>Kampagne / Motto</label><input id="motto" type="text"></div>
+<div class="identity-wrap">
+  <div class="identity-fields">
+    <div class="field compact-field"><label>Charaktername</label><input id="charName" type="text"></div>
+    <div class="field compact-field"><label>Kampagne / Motto</label><input id="motto" type="text"></div>
+  </div>
+  <div class="relationship-slot" aria-label="Beziehung heute">
+    <img id="relationshipArt" src="./rel.PNG?v=12" alt="Beziehung" onerror="this.style.visibility='hidden'">
+    <div id="relationshipInactive" class="relationship-inactive">Beziehung</div>
+  </div>
 </div>
 
 <section class="section"><h2>Attribute</h2><div id="stats" class="stats"></div></section>
@@ -86,8 +104,8 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
  <div class="xp-award">
   <div class="full"><span class="mini-label">Aktivität</span><input id="awardText" type="text" placeholder="z. B. 90 Minuten Wandern"></div>
   <div><span class="mini-label">Attribut</span><select id="awardStat1"></select></div>
-  <div><span class="mini-label">EP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
-  <div class="actions full"><button id="multiToggle" onclick="toggleMulti()">+ Zweites Attribut</button><button class="primary" onclick="awardXp()">Quest abschließen</button></div>
+  <div id="awardXp1Wrap"><span class="mini-label">EP</span><select id="awardXp1"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>25</option><option>50</option><option>100</option></select></div>
+  <div class="actions full"><button id="multiToggle" onclick="toggleMulti()">+ Zweites Attribut</button><button id="awardSubmit" class="primary" onclick="awardXp()">Quest abschließen</button></div>
  </div>
  <div id="multiRow" class="multi-row">
   <div><span class="mini-label">Zweites Attribut</span><select id="awardStat2"></select></div>
@@ -119,10 +137,10 @@ dialog{border:2px solid var(--ink);border-radius:12px;background:var(--paper);co
 <script>
 const COSTS={8:50,9:100,10:150,11:250,12:400,13:600,14:900,15:1200,16:1500,17:1800};
 const LABELS={STR:"Stärke",DEX:"Beweglichkeit",CON:"Konstitution",INT:"Intelligenz",WIS:"Weisheit",CHA:"Charisma"};
-const ICONS={STR:"str.PNG?v=11",DEX:"dex.PNG?v=11",CON:"con.PNG?v=11",INT:"int.PNG?v=11",WIS:"wis.PNG?v=11",CHA:"cha.PNG?v=11"};
+const ICONS={STR:"str.PNG?v=12",DEX:"dex.PNG?v=12",CON:"con.PNG?v=12",INT:"int.PNG?v=12",WIS:"wis.PNG?v=12",CHA:"cha.PNG?v=12"};
 
 const DEFAULT={
- charName:"",motto:"",
+ charName:"",motto:"",relationship:{activeDate:null,lastText:""},
  stats:{STR:{value:10,xp:0},DEX:{value:10,xp:0},CON:{value:11,xp:0},INT:{value:12,xp:0},WIS:{value:11,xp:0},CHA:{value:12,xp:0}},
  quests:[
   {text:"Krafttraining",stat:"STR",xp:10},
@@ -159,6 +177,7 @@ function migrateData(data){
     }
   }
   if(!Array.isArray(base.history)) base.history=[];
+  if(!base.relationship || typeof base.relationship!=="object") base.relationship={activeDate:null,lastText:""};
   return base;
 }
 
@@ -298,6 +317,24 @@ function starsHtml(stat){
  return Array.from({length:5},(_,i)=>`<span class="star ${i<n?"on":"off"}">★</span>`).join("");
 }
 function logEntry(t){state.history.unshift(`${new Date().toLocaleString("de-DE")} – ${t}`);state.history=state.history.slice(0,200)}
+function localDateKey(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function relationshipIsActiveToday(){
+  return !!(state.relationship && state.relationship.activeDate===localDateKey());
+}
+function activateRelationship(text){
+  if(!state.relationship) state.relationship={activeDate:null,lastText:""};
+  state.relationship.activeDate=localDateKey();
+  state.relationship.lastText=text||"Beziehungszeit";
+  logEntry(`BEZIEHUNG · ${state.relationship.lastText}`);
+}
+function renderRelationship(){
+  const slot=document.querySelector(".relationship-slot");
+  if(slot) slot.classList.toggle("active",relationshipIsActiveToday());
+}
+
 function levelCheck(stat){
  let s=state.stats[stat];
  while(s.value<18){
@@ -312,16 +349,49 @@ function levelCheck(stat){
 }
 function applyXp(stat,amount){state.stats[stat].xp+=Number(amount)||0;levelCheck(stat)}
 function awardXp(){
- let text=awardText.value.trim()||"Freie Quest",s1=awardStat1.value,x1=Number(awardXp1.value);
- applyXp(s1,x1);let parts=[`+${x1} ${s1}`];
- if(multiRow.classList.contains("show")){
-   let s2=awardStat2.value,x2=Number(awardXp2.value);applyXp(s2,x2);parts.push(`+${x2} ${s2}`)
- }
- logEntry(`${text}: ${parts.join(", ")}`);awardText.value="";save();render()
+  const text=awardText.value.trim()||"Freie Quest";
+  const s1=awardStat1.value;
+
+  if(s1==="REL"){
+    activateRelationship(text);
+    awardText.value="";
+    if(multiRow.classList.contains("show")) toggleMulti();
+    save();render();
+    return;
+  }
+
+  const x1=Number(awardXp1.value);
+  applyXp(s1,x1);
+  let parts=[`+${x1} ${s1}`];
+
+  if(multiRow.classList.contains("show")){
+    const s2=awardStat2.value;
+    const x2=Number(awardXp2.value);
+    if(s2==="REL"){
+      activateRelationship(text);
+      parts.push("Beziehung");
+    }else{
+      applyXp(s2,x2);
+      parts.push(`+${x2} ${s2}`);
+    }
+  }
+
+  logEntry(`${text}: ${parts.join(", ")}`);
+  awardText.value="";
+  save();render();
 }
 function toggleMulti(){
  multiRow.classList.toggle("show");
  multiToggle.textContent=multiRow.classList.contains("show")?"Zweites Attribut aktiv":"+ Zweites Attribut"
+}
+
+function updateAwardMode(){
+  const isRel=awardStat1.value==="REL";
+  const xpWrap=document.getElementById("awardXp1Wrap");
+  const submit=document.getElementById("awardSubmit");
+  if(xpWrap) xpWrap.style.display=isRel?"none":"block";
+  if(submit) submit.textContent=isRel?"Beziehungsaktivität eintragen":"Quest abschließen";
+  if(isRel && multiRow.classList.contains("show")) toggleMulti();
 }
 function renderStats(){
  stats.innerHTML="";
@@ -420,12 +490,16 @@ importFile.onchange=async e=>{
  try{state=migrateData(await f.text());render();await persistNow();alert("Spielstand importiert.")}catch{alert("Import fehlgeschlagen.")}
 };
 async function resetAll(){if(confirm("Wirklich alles zurücksetzen?")){state=cloneDefault();render();await persistNow()}}
-function fillSelect(id){document.getElementById(id).innerHTML=Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")}
-fillSelect("awardStat1");fillSelect("awardStat2");charName.oninput=save;motto.oninput=save;notes.oninput=save;
-function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderMastery();renderHistory()}
+function fillSelect(id){
+  document.getElementById(id).innerHTML=
+    Object.keys(LABELS).map(k=>`<option value="${k}">${k} – ${LABELS[k]}</option>`).join("")+
+    `<option value="REL">Beziehung</option>`;
+}
+fillSelect("awardStat1");fillSelect("awardStat2");awardStat1.addEventListener("change",updateAwardMode);charName.oninput=save;motto.oninput=save;notes.oninput=save;
+function render(){charName.value=state.charName||"";motto.value=state.motto||"";notes.value=state.notes||"";renderStats();renderMastery();renderHistory();renderRelationship();updateAwardMode()}
 if("serviceWorker"in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=11",{updateViaCache:"none"})
+    navigator.serviceWorker.register("./sw.js?v=12",{updateViaCache:"none"})
       .then(reg=>reg.update())
       .catch(err=>console.warn("Service Worker update failed",err));
   });
@@ -434,6 +508,7 @@ if("serviceWorker"in navigator){
 window.addEventListener("pagehide",()=>{persistNow()});
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="hidden") persistNow();
+  else renderRelationship();
 });
 
 async function initApp(){
@@ -446,5 +521,6 @@ async function initApp(){
 }
 
 initApp();
+setInterval(renderRelationship,60000);
 </script>
 </body></html>
